@@ -33,9 +33,6 @@ def get_str_word():
         # 首先进行数据爬取
         # 进行分词
         word = CutWord.get_cut_word(GetSpider.save_file(keyword, 1, out_dir_path='./files'))
-        # WinCloudCreate.createWinCloudPic('./static/imgs/%s.png' % keyword, word,
-        #                                  font_path='./fonts/SanJiXiangXingJianTi-2.ttf',
-        #                                  img_path='./static/imgs/back.png')
     except Exception as e:
         print(e)
         return jsonify({
