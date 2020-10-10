@@ -121,7 +121,7 @@ def tf_tdf_ans():
         word = ""
         with open('./files/%s.txt' % keyword, 'r', encoding='utf-8') as fp:
             word = fp.read()
-        word = CutWord.get_cut_counter(word)
+        word = CutWord.TF_IDF_analyse_word(word)
         return jsonify({
             'status': 200,
             'msg': '查询成功',

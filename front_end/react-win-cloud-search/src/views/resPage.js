@@ -19,19 +19,14 @@ const Swiper = styled.div`
     }
 `
 function ResPage(props) {
-    // const [keyword, setKeyword] = useState(props.match.params.value)
     let keyword = props.match.params.value
     const [pic, setPic] = useState("")
     const [isLoad, setIsLoad] = useState(false)
     useEffect(() => {
-        // fetch(`http://47.102.212.191:10010/getPic?keyword=${keyword}`).then(res => res.json()).then(res => {
-        //     console.log(res.url)
-        //     setPic(res.url)
-        //     setIsLoad(true)
-        // })
-        fetch(`http://127.0.0.1:5000/getStr?keyword=${keyword}`).then(res => res.json()).then(res => {
-            console.log(res.word)
-            // setPic(res)
+        // eslint-disable-next-line
+        fetch(`http://47.102.212.191:10010/getPic?keyword=${keyword}`).then(res => res.json()).then(res => {
+            console.log(res.url)
+            setPic(res.url)
             setIsLoad(true)
         })
     }, [])
@@ -47,13 +42,10 @@ function ResPage(props) {
                     type="info"
                 />
             </Spin>}
-            {
-                isLoad && <canvas id="my_canvas" style={{ width: '900px', height: '600px' }}></canvas>
-            }
-            {/*isLoad && <Image
+            {isLoad && <Image
                 width={500}
                 src={`http://47.102.212.191:10010/${pic}`}
-            />*/}
+            />}
         </Swiper>
     </div >)
 }

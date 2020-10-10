@@ -33,6 +33,13 @@ user_agents = [
     'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0',
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; SV1; QQDownload 732; .NET4.0C; .NET4.0E; SE 2.X MetaSr 1.0)']
 
+dps = {
+    "北京": "010",
+    "上海": "020",
+    "广州": "050020",
+    "深圳": "050090"
+}
+
 
 def get_all_links(key: str, count: int) -> dict:
     """
