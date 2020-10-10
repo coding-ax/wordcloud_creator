@@ -80,7 +80,7 @@ def get_detail_data(url: str) -> dict:
     user_agent = random.choice(user_agents)
 
     # 建立关键词用于清洗数据
-    describution_word = ['专业要求', '岗位要求', '任职资格', '职位要求', '任职要求']
+    describution_word = ['专业要求', '岗位要求', '任职资格', '职位要求', '任职要求', '一些要求']
 
     # 建立爬取
     session = requests.Session()
@@ -93,7 +93,7 @@ def get_detail_data(url: str) -> dict:
     # 开始解析
     tree = etree.HTML(html)
     description = list(tree.xpath(
-        '//div[contains(@class,"job-description")]/div[contains(@class,"content") and contains(@class,"content-word") ]//text()'))
+        '//div[contains(@class,"job-description")]/div[contains(@class,"content") and contains(@classext,"content-word") ]//t()'))
     desc = ''
     for des in description:
         desc = desc + str(des.strip())
