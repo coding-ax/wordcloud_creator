@@ -10,7 +10,7 @@ from collections import Counter
 import jieba.analyse
 
 # 设置停用词
-stopWordList = r"1234567890,./!@#$%^&*()-=+_ \t\n"
+stopWordList = "1234567890,./；的有和等（）。．：•!@#$%^&*()-=+_，。\\、010203040506070809 \t\n"
 
 
 # 返回生成词云可用的分词
@@ -38,7 +38,7 @@ def get_cut_counter(word: list) -> dict:
     return Counter(get_cut_word_list(word))
 
 
-# TF_IDF返回词频
+# # TF_IDF返回词频
 def TF_IDF_analyse_word(word: str) -> dict:
     # keywords = jieba.analyse.extract_tags(word, topK=5, withWeight=True, ,
     #                                           allowPOS=('n', 'ns', 'nz', 'nt', 'an', 'nw', 'vn'))

@@ -19,22 +19,21 @@ const Swiper = styled.div`
     }
 `
 function ResPage(props) {
-    let keyword = props.match.params.value
+    const { keyword, dqs, salary } = JSON.parse(props.match.params.value)
+    console.log(props)
     const [pic, setPic] = useState("")
     const [isLoad, setIsLoad] = useState(false)
     useEffect(() => {
         // eslint-disable-next-line
-        fetch(`http://47.102.212.191:10010/getPic?keyword=${keyword}`).then(res => res.json()).then(res => {
-            console.log(res.url)
+        fetch(`http://127.0.0.1:5000/getPic?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then(res => {
+            console.log(res)
             setPic(res.url)
             setIsLoad(true)
         })
     }, [])
     return (<div>
         <Swiper>
-
             <Button type="primary" className="left-top" onClick={() => { props.history.push('/') }}>返回上层</Button>
-
             {!isLoad && <Spin tip="Loading...">
                 <Alert
                     message="正在请求中"
@@ -44,7 +43,7 @@ function ResPage(props) {
             </Spin>}
             {isLoad && <Image
                 width={500}
-                src={`http://47.102.212.191:10010/${pic}`}
+                src={`http://127.0.0.1:5000/${pic}`}
             />}
         </Swiper>
     </div >)

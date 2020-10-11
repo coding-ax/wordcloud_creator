@@ -33,17 +33,12 @@ user_agents = [
     'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0',
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; SV1; QQDownload 732; .NET4.0C; .NET4.0E; SE 2.X MetaSr 1.0)']
 
-dps = {
-    "北京": "010",
-    "上海": "020",
-    "广州": "050020",
-    "深圳": "050090"
-}
 
-
-def get_all_links(key: str, count: int) -> dict:
+def get_all_links(key: str, count: int = 3, salary: str = "", dqs: str = "") -> dict:
     """
     :param key: 搜索的关键词
+    :param salary: 薪资区域
+    :param dqs:地区
     :param count: 要爬取的页数
     :return: 一个充满详情页的列表 key  count的字典
     """
@@ -56,7 +51,9 @@ def get_all_links(key: str, count: int) -> dict:
         headers = {
             'User-Agent': user_agent
         }
-        response = session.get(url='https://www.liepin.com/zhaopin/?key=%s&curPage=%s' % (key, i), headers=headers)
+        response = session.get(
+            url='https://www.liepin.com/zhaopin/?key=%s&curPage=%s&dqs=%s&salary=%s' % (key, i, dqs, salary),
+            headers=headers)
         html = response.text
         # 解析开始
         # 使用lxml解析
@@ -100,7 +97,7 @@ def get_detail_data(url: str) -> dict:
     # 开始解析
     tree = etree.HTML(html)
     description = list(tree.xpath(
-        '//div[contains(@class,"job-description")]/div[contains(@class,"content") and contains(@classext,"content-word") ]//t()'))
+        '//div[contains(@class,"job-description")]/div[contains(@class,"content") and contains(@class,"content-word") ]//text()'))
     desc = ''
     for des in description:
         desc = desc + str(des.strip())
@@ -115,7 +112,7 @@ def get_detail_data(url: str) -> dict:
             break
     if not isFind:
         desc = ''
-
+    print(desc)
     # 返回要求
     return {
         'url': url,
@@ -123,25 +120,30 @@ def get_detail_data(url: str) -> dict:
     }
 
 
-def save_file(keyword: str, count: int, out_dir_path: str) -> str:
+def save_file(keyword: str, count: int, dqs: str, salary: str, txt_name: str, out_dir_path: str) -> str:
     """
-    :param keyword: 保存数据到本地txt
-    :return: 无
+    保存爬取到的文字内容到txt，进行数据持久化
+    :param keyword: 关键词
+    :param count: 爬取的页数
+    :param dqs: 地点
+    :param salary: 薪资
+    :param out_dir_path: 文件路径
+    :return:
     """
     res = ''
     # 检测文件夹存在
     if not os.path.exists(out_dir_path):
         os.mkdir(out_dir_path)
-    with open(out_dir_path + '/%s.txt' % keyword, 'w+', encoding='utf8') as fp:
+    with open(out_dir_path + '/%s.txt' % txt_name, 'w+', encoding='utf8') as fp:
         try:
             # 进行详情提取
-            all_links = get_all_links(keyword, count)
+            all_links = get_all_links(key=keyword, count=count, dqs=dqs, salary=salary)
+            print(all_links)
             for data in all_links['data']:
                 try:
                     # 进行解析
-                    print('正在爬取%s' % data['href'])
+                    print('正在爬取%s:%s' % (data['title'], data['href']))
                     current = get_detail_data(data['href'])
-                    # print(current['desc'])
                     fp.write(current['desc'])
                     res = res + current['desc']
                 except Exception as e1:
@@ -151,3 +153,8 @@ def save_file(keyword: str, count: int, out_dir_path: str) -> str:
         except Exception as e:
             print(e)
     return res
+
+
+if __name__ == "__main__":
+    get_detail_data(
+        'https://www.liepin.com/job/1924502631.shtml?imscid=R000000075&siTag=596nxAVoLb717rCoE4uPCg%7EDf_ytIWx_TSnbjuaKbsjLQ&d_sfrom=search_prime&d_ckId=0614228f32d7993dd7519bb385a6017d&d_curPage=0&d_pageSize=40&d_headId=0614228f32d7993dd7519bb385a6017d&d_posi=0')

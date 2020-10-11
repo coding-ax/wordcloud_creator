@@ -46,12 +46,17 @@ const openNotification = () => {
 };
 const fontColors = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6"]
 let i = 0;
+let params = {
+    salary: '',
+    keyword: '',
+    dqs: ''
+}
 function SearchPage(props) {
     const callback = (key) => {
         console.log(key)
     }
-    // 展示option
-    const options = [
+    // 地区展示option
+    const options1 = [
         {
             value: '010',
             label: '北京',
@@ -67,12 +72,47 @@ function SearchPage(props) {
         {
             value: '050090',
             label: '深圳',
+        },
+        {
+            value: '070020',
+            label: "杭州"
         }
     ];
-    function onChange(value) {
-        console.log(value);
+    // 薪资区域options
+    const options2 = [
+        {
+            value: '10$15',
+            label: '10-15w',
+        },
+        {
+            value: '15$20',
+            label: '15-20w',
+        },
+        {
+            value: '20$30',
+            label: '20-30w',
+        },
+        {
+            value: '30$50',
+            label: '30-50w',
+        },
+        {
+            value: '50$100',
+            label: '50-100w',
+        },
+        {
+            value: '100$999',
+            label: '100w以上',
+        }
+    ];
+    function onChangeDqs(value) {
+        console.log(value[0]);
+        params.dqs = value[0];
     }
-
+    function onChangeSalary(value) {
+        console.log(value[0]);
+        params.salary = value[0];
+    }
     const [fontColor, setFontColor] = useState(fontColors[i])
     // 颜色变化效果
     useEffect(() => {
@@ -93,26 +133,29 @@ function SearchPage(props) {
                 <Tabs defaultActiveKey="1" onChange={callback} style={{ "color": "#fff" }}>
                     <TabPane tab="通过前端生成词云图和分析图" key="1">
                         <div className='search-box'>
-                            <Cascader options={options} placeholder="请选择地区" onChange={onChange} style={{ margin: "3px" }} />
+                            <Cascader options={options2} placeholder="请选择薪资范围" onChange={onChangeSalary} style={{ margin: "3px" }} />
+                            <Cascader options={options1} placeholder="请选择地区" onChange={onChangeDqs} style={{ margin: "3px" }} />
                             <Search placeholder="请输入要查找的岗位"
                                 onSearch={value => {
                                     if (value !== "") {
-                                        props.history.push(`/res/${value}`)
+                                        params.keyword = value
+                                        props.history.push(`/front/${JSON.stringify(params)}`)
                                     } else {
                                         openNotification()
                                     }
-
                                 }}
                                 enterButton />
                         </div>
                     </TabPane>
                     <TabPane tab="通过后端生成词云图（仅词云图）（较慢）" key="2">
                         <div className='search-box'>
-
+                            <Cascader options={options2} placeholder="请选择薪资范围" onChange={onChangeSalary} style={{ margin: "3px" }} />
+                            <Cascader options={options1} placeholder="请选择地区" onChange={onChangeDqs} style={{ margin: "3px" }} />
                             <Search placeholder="请输入要查找的岗位"
                                 onSearch={value => {
                                     if (value !== "") {
-                                        props.history.push(`/res/${value}`)
+                                        params.keyword = value
+                                        props.history.push(`/res/${JSON.stringify(params)}`)
                                     } else {
                                         openNotification()
                                     }
