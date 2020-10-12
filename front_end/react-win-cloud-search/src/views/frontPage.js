@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Image, Spin, Alert, Button } from 'antd';
+import { Button, Progress, Spin, Alert } from 'antd';
 import styled from 'styled-components'
-const Highcharts = require('highcharts')
+import Highcharts from 'highcharts/highcharts'
+import wordcloud from 'highcharts/modules/wordcloud'
+import highcharts_zh from 'highcharts'
+// 运行 
+require('highcharts/modules/exporting')(Highcharts);
+wordcloud(Highcharts)
+// 样式设置
 const Swiper = styled.div`
     background:url('https://xgpax.top/wp-content/uploads/2020/08/天气之子.jpg') 100%;
     margin:auto;
@@ -18,17 +24,169 @@ const Swiper = styled.div`
         left:30px;
         top:50px;
     }
+    color:#fff; 
+    .pic-container{
+        display:flex;
+        flex-direction:row;
+        justify-content:center;
+        align-items:center;
+        >*{
+            margin:5px;
+            border-radius:10px;
+        }
+    }
 `
-let data = [];
+// 词云图设置
+const drawWinCloud = (data) => {
+    Highcharts.chart('container', {
+        //highcharts logo
+        credits: { enabled: true },
+        //导出
+        exporting: { enabled: true },
+        //提示关闭
+        tooltip: { enabled: false },
+        //颜色配置
+        colors: [
+            '#ffffff', '#00c0d7', '#2594ce', '#de4c85',
+            '#ff7f46', '#ffb310', '#e25c52'
+        ],
+        //图形配置
+        chart: {
+            spacingBottom: 15,
+            spacingTop: 12,
+            // spacingLeft: 5,
+            // spacingRight: 5,
+            backgroundColor: "rgba(0, 0, 0,0.5)",
+        },
+
+        series: [{
+            type: "wordcloud",// 类型
+            data: data,
+            rotation: 0,//字体不旋转
+            maxFontSize: 30,//最大字体
+            minFontSize: 16,//最小字体
+            style: {
+                fontFamily: "微软雅黑",
+                fontWeight: '500'
+            }
+        }
+        ],
+        //点击事件方法
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                events: {
+                    click: function (e) {
+                        // 单条数据
+                        console.log(e.point.options.itemData)
+                    }
+                }
+            }
+        },
+
+        //标题配置
+        title: {
+            text: '词云图 ●',
+            // x: 5,
+            // y: 15,
+            align: 'left',
+            style: {
+                color: 'white',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                lineHeight: '1.2',
+            }
+        }
+
+    });
+}
+// 柱状图设置
+const drawPic = (data) => {
+    Highcharts.chart('container2', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: '各词语TF-IDF值'
+        },
+        subtitle: {
+            text: '统计前10位'
+        },
+        xAxis: {
+            type: 'category',
+            labels: {
+                rotation: -45  // 设置轴标签旋转角度
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'TF-IDF值'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        tooltip: {
+            pointFormat: 'TF-IDF: <b>{point.y:.3f}</b>'
+        },
+        series: [{
+            name: 'TF-IDF值',
+            data: data,
+            dataLabels: {
+                enabled: true,
+                rotation: -90,
+                color: '#FFFFFF',
+                align: 'right',
+                format: '{point.y:.3f}', // :.1f 为保留 1 位小数
+                y: 1
+            }
+        }]
+    });
+}
+const drawBing =(bing)=>{
+    Highcharts.chart('container3', {
+		chart: {
+				plotBackgroundColor: null,
+				plotBorderWidth: null,
+				plotShadow: false,
+				type: 'pie'
+		},
+		title: {
+				text: '前十词汇比例'
+		},
+		tooltip: {
+				pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		plotOptions: {
+				pie: {
+						allowPointSelect: true,
+						cursor: 'pointer',
+						dataLabels: {
+								enabled: true,
+								format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+								style: {
+										color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+								}
+						}
+				}
+		},
+		series: [{
+				name: 'Brands',
+				colorByPoint: true,
+				data:bing
+		}]
+});
+}
 function FrontPage(props) {
     const { keyword, dqs, salary } = JSON.parse(props.match.params.value)
+    console.log(keyword, dqs, salary);
     // 提取关键词
-
-    const [word, setWord] = useState("")
     const [isLoad, setIsLoad] = useState(false)
     useEffect(() => {
-        fetch(`http://127.0.0.1:5000/getDict?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then((res) => {
-            console.log(res.word);
+        let data = [];
+        fetch(`http://127.0.0.1:5000/getTF?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then((res) => {
+            console.log(res);
             res = Object(res.word)
             for (let key in res) {
                 data.push({
@@ -36,47 +194,71 @@ function FrontPage(props) {
                     count: res[key]
                 })
             }
-            console.log(data.sort((a, b) => b.count - a.count))
-        })
-        let text = `um erat ac justo sollicitudin, quis lacinia ligula fringilla. Pellentesque hendrerit, nisi vitae posuere condimentum, lectus urna accumsan libero, rutrum commodo mi lacus pretium erat. Phasellus pretium ultrices mi sed semper. Praesent ut tristique magna. Donec nisl tellus, sagittis ut tempus sit amet, consectetur eget erat. Sed ornare gravida lacinia. Curabitur iaculis metus purus, eget pretium est laoreet ut. Quisque tristique augue ac eros malesuada, vitae facilisis mauris sollicitudin. Mauris ac molestie nulla, vitae facilisis quam. Curabitur placerat ornare sem, in mattis purus posuere eget. Praesent non condimentum odio. Nunc aliquet, odio nec auctor congue, sapien justo dictum massa, nec fermentum massa sapien non tellus. Praesent luctus eros et nunc pretium hendrerit. In consequat et eros nec interdum. Ut neque dui, maximus id elit ac, consequat pretium tellus. Nullam vel accumsan lorem.`;
-        // 注意：这里的代码只是对上面的句子进行分词并计算权重（重复次数）并构建词云图需要的数据，其中 arr.find 和 
-        // 	reduce 函数可能在低版本 IE 中无法使用（属于ES6新增的函数），如果不能正常使用（对应的函数有报错），请自行加相应的 Polyfill
-        //  array.find 的 ployfill 参见：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/find#Polyfill
-        // 	array.reduce 的 ployfill ：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce#Polyfill
-        var word = text.split(/[,\. ]+/g)
-            .reduce(function (arr, word) {
-                var obj = arr.find(function (obj) {
-                    return obj.name === word;
-                });
-                if (obj) {
-                    obj.weight += 1;
-                } else {
-                    obj = {
-                        name: word,
-                        weight: 1
-                    };
-                    arr.push(obj);
+            data.sort((a, b) => b.count - a.count);
+            data = data.slice(0, 50)
+            console.log(data);
+            data = data.map((item) => {
+                let obj = {
+                    name: item.key || "错误",
+                    itemData: item,
+                    weight: Math.floor(Math.random() * 3 + 1)//控制加粗,随机数取1~3
+                };
+                return obj;
+            });
+            console.log(data);
+            // 清除load
+            setIsLoad(true);
+            // 挂载词云图
+            drawWinCloud(data);
+            // 挂载柱状图
+            let zhu = data.map(item => {
+                console.log(item)
+                return [
+                    item.name,
+                    item.itemData.count
+                ]
+            })
+            zhu.sort((a, b) => a[1] > b[1]);
+            console.log(zhu);
+            drawPic(zhu.slice(0, 10));
+            // 挂载饼状图
+            zhu = zhu.slice(0, 10);
+            zhu = zhu.map(item=>{
+                return {
+                    name:item[0],
+                    y:item[1]
                 }
-                return arr;
-            }, []);
-        Highcharts.chart('container', {
-            series: [{
-                type: 'wordcloud',
-                data: word
-            }],
-            title: {
-                text: '词云图'
-            }
-        });
-
+            })
+            drawBing(zhu);
+        })
     }, [])
     return (<div>
         <Swiper>
             <Button type="primary" className="left-top" onClick={() => { props.history.push('/') }}>返回上层</Button>
-            <div id="container">
+            {!isLoad && <Spin tip="Loading...">
+                <Alert
+                    size="large"
+                    message="正在加载中"
+                    description="爬取中，请耐心等待"
+                    type="info"
+                />
+            </Spin>}
+            <div className="pic-container">
+                {/**词云图 */}
+                <div id="container" style={{ width: "500px", height: "400px" }}>
 
+                </div>
+                {/**柱状图 */}
+                <div id="container2" style={{ width: "500px", height: "400px" }}>
+
+                </div>
+                {/**饼状图 */}
+                <div id="container3" style={{ width: "500px", height: "400px" }}>4
+                
+                </div>
             </div>
+
         </Swiper>
-    </div >)
+    </div>)
 }
 export default React.memo(FrontPage)
