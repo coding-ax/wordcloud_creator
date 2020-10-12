@@ -185,7 +185,7 @@ function FrontPage(props) {
     const [isLoad, setIsLoad] = useState(false)
     useEffect(() => {
         let data = [];
-        fetch(`http://127.0.0.1:5000/getTF?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then((res) => {
+        fetch(`http://47.102.212.191:10010/getTF?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then((res) => {
             console.log(res);
             res = Object(res.word)
             for (let key in res) {

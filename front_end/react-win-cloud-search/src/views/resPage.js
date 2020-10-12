@@ -25,7 +25,7 @@ function ResPage(props) {
     const [isLoad, setIsLoad] = useState(false)
     useEffect(() => {
         // eslint-disable-next-line
-        fetch(`http://127.0.0.1:5000/getPic?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then(res => {
+        fetch(`http://47.102.212.191:10010/getPic?keyword=${keyword}&dqs=${dqs}&salary=${salary}`).then(res => res.json()).then(res => {
             console.log(res)
             setPic(res.url)
             setIsLoad(true)
@@ -43,7 +43,7 @@ function ResPage(props) {
             </Spin>}
             {isLoad && <Image
                 width={500}
-                src={`http://127.0.0.1:5000/${pic}`}
+                src={`http://47.102.212.191:10010/${pic}`}
             />}
         </Swiper>
     </div >)

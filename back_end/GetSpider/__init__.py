@@ -112,7 +112,7 @@ def get_detail_data(url: str) -> dict:
             break
     if not isFind:
         desc = ''
-    print(desc)
+    #print(desc)
     # 返回要求
     return {
         'url': url,
@@ -138,7 +138,7 @@ def save_file(keyword: str, count: int, dqs: str, salary: str, txt_name: str, ou
         try:
             # 进行详情提取
             all_links = get_all_links(key=keyword, count=count, dqs=dqs, salary=salary)
-            print(all_links)
+           # print(all_links)
             for data in all_links['data']:
                 try:
                     # 进行解析
